@@ -75,6 +75,7 @@ def create_table(tables):
         else:
             print("OK")
 
+
 # def drop_table():
 
 
@@ -121,56 +122,83 @@ def show_info(db_table):
 
 def test():
     global db_name
-    db_name = "db_python"
+    db_name = "clinicas_oftamologicas"
 
     create_conexion("root", "0000", "localhost", "3306")
-    tables = {}
-    tables["prueba"] = """
-        CREATE TABLE IF NOT EXISTS prueba (
-            id_prueba int(11) NOT NULL,
-            nombre varchar(255) NOT NULL,
-            PRIMARY KEY(id_prueba)
+    tables = {"paciente": (
+        """
+        CREATE TABLE IF NOT EXISTS paciente(
+            dni VARCHAR(12) NOT NULL,
+            nombre VARCHAR(255) NOT NULL,
+            fecha_nacimiento DATE NOT NULL,
+            direccion VARCHAR(255) NOT NULL,
+            CONSTRAINT pk_paciente PRIMARY KEY(dni)
+        )
+        """
+    ), "tratamiento": ("""
+        CREATE TABLE IF NOT EXISTS tratamiento(
+            id_tratamiento INT(10) NOT NULL,
+            nombre VARCHAR(70) NOT NULL,
+            fecha_inicio DATE NOT NULL,
+            CONSTRAINT pk_tratamiento PRIMARY KEY(id_tratamiento)
+        )
+    """), "medico": ("""
+        CREATE TABLE IF NOT EXISTS medico(
+            num_colegiado VARCHAR(9) NOT NULL,
+            nombre VARCHAR(70) NOT NULL,
+            fecha_nacimiento DATE NOT NULL,
+            CONSTRAINT pk_tratamiento PRIMARY KEY(num_colegiado)
+        )
+    """), "periodo": ("""
+        CREATE TABLE IF NOT EXISTS perido(
+            fecha_inicio DATE NOT NULL,
+            fecha_fin DATE NOT NULL,
+            CONSTRAINT pk_tratamiento PRIMARY KEY(fecha_inicio, fecha_fin)
         )
     """
-    tables["encargado"] = """
-        CREATE TABLE IF NOT EXISTS encargado(
-            id_encargado int(11) NOT NULL,
-            nombre varchar(255) NOT NULL,
-            apellido varchar(255) NOT NULL,
-            PRIMARY KEY(id_encargado)
+
+                      ), "clinica": ("""
+        CREATE TABLE IF NOT EXISTS clinica(
+            codigo_postal INT(8) NOT NULL,
+            numero INT(4) NOT NULL,
+            calle VARCHAR(4) NOT NULL,
+            ciudad VARCHAR(100) NOT NULL,
+            telefono VARCHAR(10) NOT NULL,
+            CONSTRAINT pk_clinicas PRIMARY KEY(codigo_postal, numero, calle(4))
         )
     """
+                                     ), "prueba": ("""
+        CREATE TABLE IF NOT EXISTS prueba(
+            codigo_prueba INT(8) NOT NULL,
+            nombre VARCHAR(255) NOT NULL,
+            fecha DATE NOT NULL,
+            hora TIME NOT NULL,
+            tipo VARCHAR(255) NOT NULL,
+            descripcion VARCHAR(255) NOT NULL,
+            CONSTRAINT pk_prueba PRIMARY KEY(codigo_prueba)
+        )
+    """
+                                                   )}
+
     create_db()
     create_table(tables)
-    add_prueba = (
-        "INSERT INTO prueba"
-        "(id_prueba, nombre)"
-        "VALUES (%(id_prueba)s, %(nombre)s)"
-    )
-    add_encargado = (
-        """
-        INSERT INTO encargado(id_encargado, nombre, apellido)
-        VALUES (%(id_encargado)s, %(nombre)s, %(apellido)s)
-        """
+    add_paciente = (
+        "INSERT INTO paciente"
+        "(dni, nombre, fecha_nacimiento, direccion)"
+        "VALUES (%(dni)s, %(nombre)s, %(fecha_nacimiento)s, %(direccion)s)"
     )
 
-    data_prueba = {
-        'id_prueba': 3140,
-        'nombre': "Angel Corzo"
+    data_paciente = {
+        'dni': "109565",
+        'nombre': "Maria Jose Rico Pabon",
+        'fecha_nacimiento': "1988/03/01",
+        'direccion': "Cl 15 # 4-51 Barrio Aeropuerto"
     }
 
-    data_encargado = {
-        "id_encargado": "0001",
-        "nombre": "Angel",
-        "apellido": "Corzo"
-    }
-
-    insert_data(add_prueba, data_prueba)
-    insert_data(add_encargado, data_encargado)
-    # drop_db()
+    insert_data(add_paciente, data_paciente)
     show_table()
-    show_atributes("prueba")
-    show_info("prueba")
+    show_atributes("paciente")
+    show_info("paciente")
 
     cursor.close()
     cnx.close()
